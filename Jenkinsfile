@@ -1,11 +1,20 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'IMAGE_TAG', defaultValue: 'v1.0', description: 'Tag for the Docker image')
+    }
+
+    tools {
+        maven 'Maven 3.9.9'
+        dockerTool 'Docker'
+    }
+
     stages {
         stage('Build') {
             steps {
                 script {
-                    sh 'mvn clean install'
+                    bat 'mvn clean install'
                 }
             }
         }
@@ -13,7 +22,7 @@ pipeline {
         stage('Test') {
             steps {
                 script {
-                    sh 'mvn test'
+                    bat 'mvn test'
                 }
             }
         }
@@ -21,7 +30,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    sh 'docker build -t mixaron/eureka-server:v1.0 .'
+                    bat "docker build -t mixaron/eureka-server:${params.IMAGE_TAG} ."
                 }
             }
         }
@@ -30,7 +39,7 @@ pipeline {
             steps {
                 script {
                     withDockerRegistry(credentialsId: 'docker-hub-credentials', url: '') {
-                        sh 'docker push your-dockerhub-repo/eureka-server:latest'
+                        bat "docker push mixaron/eureka-server:${params.IMAGE_TAG}"
                     }
                 }
             }
@@ -39,7 +48,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 script {
-                    sh 'docker-compose up -d'
+                    bat 'docker-compose up -d'
                 }
             }
         }
