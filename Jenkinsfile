@@ -19,6 +19,15 @@ pipeline {
             }
         }
 
+        stage('Start Eureka and Dependencies') {
+            steps {
+                script {
+                    bat 'docker-compose up -d eureka-server'
+                    sleep 30 // Wait for Eureka to start
+                }
+            }
+        }
+
         stage('Test') {
             steps {
                 script {
@@ -49,6 +58,14 @@ pipeline {
             steps {
                 script {
                     bat 'docker-compose up -d'
+                }
+            }
+        }
+
+        stage('Stop Eureka and Dependencies') {
+            steps {
+                script {
+                    bat 'docker-compose down'
                 }
             }
         }
